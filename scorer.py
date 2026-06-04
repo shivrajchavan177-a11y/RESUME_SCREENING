@@ -23,11 +23,22 @@ class ResumeScore:
     recommendation: str
 
 
-def calculate_ats_score(matched_skills: list[str], required_skills: list[str]) -> float:
-    """Calculate ATS score as the percentage of required skills found."""
+def calculate_ats_score(
+    matched_skills: list[str],
+    required_skills: list[str]
+) -> float:
+
     if not required_skills:
         return 0.0
-    return round((len(matched_skills) / len(required_skills)) * 100, 2)
+
+    skill_ratio = (
+        len(matched_skills) / len(required_skills)
+    )
+
+    # ATS capped at 85
+    ats_score = 50 + (skill_ratio * 35)
+
+    return round(min(ats_score, 85), 2)
 
 
 def calculate_similarity_score(
@@ -40,7 +51,7 @@ def calculate_similarity_score(
     if not resume_text.strip() or not job_description.strip():
         return 0.0
 
-    # TEXT SIMILARITY
+    # TF-IDF text similarity
     vectorizer = TfidfVectorizer(
         stop_words="english",
         ngram_range=(1, 2)
@@ -55,27 +66,50 @@ def calculate_similarity_score(
         matrix[1:2]
     )[0][0] * 100
 
-    # SKILL MATCH SCORE
+    # Skill match ratio
     if required_skills:
 
-        skill_score = (
+        skill_ratio = (
             len(matched_skills) / len(required_skills)
-        ) * 100
+        )
 
     else:
-        skill_score = 0
+        skill_ratio = 0
 
-    # FINAL HYBRID SCORE
-    final_score = (
-        (0.30 * text_score) +
-        (0.70 * skill_score)
+    # Main score logic
+    if skill_ratio >= 1:
+
+        # Perfect match
+        similarity_score = 95 + (text_score * 0.05)
+
+    elif skill_ratio >= 0.8:
+
+        similarity_score = 85 + (text_score * 0.08)
+
+    elif skill_ratio >= 0.6:
+
+        similarity_score = 70 + (text_score * 0.10)
+
+    else:
+
+        similarity_score = (
+            (skill_ratio * 70) +
+            (text_score * 0.30)
+        )
+
+    return round(min(similarity_score, 100), 2)
+
+def calculate_overall_score(
+    ats_score: float,
+    similarity_score: float
+) -> float:
+
+    overall = (
+        (ats_score * 0.40) +
+        (similarity_score * 0.60)
     )
 
-    return round(final_score, 2)
-
-def calculate_overall_score(ats_score: float, similarity_score: float) -> float:
-    """Combine skill coverage and job-description similarity."""
-    return round((ats_score * 0.65) + (similarity_score * 0.35), 2)
+    return round(min(overall, 100), 2)
 
 
 def build_recommendation(ats_score: float, similarity_score: float, missing_skills: list[str]) -> str:
