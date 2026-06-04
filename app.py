@@ -221,7 +221,7 @@ def main() -> None:
         <div class="hero">
             <h1>Smart Resume Screening System</h1>
             <p>
-            Resume parsing, ATS scoring,
+            Resume parsing,  ATS scoring, 
             job matching and ranking.
             </p>
         </div>
