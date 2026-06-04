@@ -206,7 +206,16 @@ def main() -> None:
         if use_job_skills else []
     )
 
-    required_skills = base_required_skills or DEFAULT_SKILLS
+    required_skills = base_required_skills
+
+    if not required_skills:
+
+        st.warning(
+            "No skills detected from the job description. "
+            "Please enter a detailed job description."
+        )
+
+        st.stop()S
 
     st.subheader("Required Skills")
     st.success(", ".join(required_skills))
