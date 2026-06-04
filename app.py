@@ -215,7 +215,7 @@ def main() -> None:
             "Please enter a detailed job description."
         )
 
-        st.stop()S
+        st.stop()
 
     st.subheader("Required Skills")
     st.success(", ".join(required_skills))
