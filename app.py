@@ -219,9 +219,9 @@ def main() -> None:
     st.markdown(
         """
         <div class="hero">
-            <h1>AI Resume Screening Agent</h1>
+            <h1>Smart Resume Screening System</h1>
             <p>
-            Offline resume parsing, ATS scoring,
+            Resume parsing, ATS scoring,
             job matching and ranking.
             </p>
         </div>
