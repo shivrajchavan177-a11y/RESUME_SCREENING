@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import streamlit as st
 
 from parser import parse_uploaded_resume
+
 from scorer import (
     ResumeScore,
     build_recommendation,
@@ -16,7 +17,6 @@ from scorer import (
 )
 
 from skill_extractor import (
-    DEFAULT_SKILLS,
     create_resume_summary,
     extract_skills,
     extract_skills_from_job_description,
@@ -30,14 +30,16 @@ st.set_page_config(
     layout="wide",
 )
 
+
+# SESSION STATE
 if "results" not in st.session_state:
-    st.session_state.results = []
+    st.session_state.results = None
 
 if "ranking_df" not in st.session_state:
     st.session_state.ranking_df = None
 
 if "required_skills" not in st.session_state:
-    st.session_state.required_skills = []
+    st.session_state.required_skills = None
 
 
 CUSTOM_CSS = """
@@ -77,7 +79,11 @@ CUSTOM_CSS = """
 """
 
 
-def render_score_card(title: str, value: float, suffix: str = "%") -> None:
+def render_score_card(
+    title: str,
+    value: float,
+    suffix: str = "%"
+) -> None:
 
     st.markdown(
         f"""
@@ -111,6 +117,7 @@ def plot_skill_match(
     )
 
     ax.set_ylabel("Count")
+
     ax.set_title("Skill Match Overview")
 
     st.pyplot(fig)
@@ -269,166 +276,163 @@ def main() -> None:
 
     st.success(", ".join(required_skills))
 
-    if not uploaded_files:
-        st.error("Please upload at least one resume.")
-        return
-
-    if not job_description.strip():
-        st.error("Please enter a job description.")
-        return
-
+    # ANALYZE RESUMES
     if analyze_button:
 
         results = []
 
-    progress_bar = st.progress(0)
+        progress_bar = st.progress(0)
 
-    for index, uploaded_file in enumerate(uploaded_files, start=1):
+        for index, uploaded_file in enumerate(uploaded_files, start=1):
 
-        try:
+            try:
 
-            result = analyze_resume(
-                uploaded_file,
-                job_description,
-                required_skills
-            )
+                result = analyze_resume(
+                    uploaded_file,
+                    job_description,
+                    required_skills
+                )
 
-            results.append(result)
+                results.append(result)
 
-        except Exception as error:
+            except Exception as error:
 
-            st.warning(
-                f"Could not analyze {uploaded_file.name}: {error}"
-            )
+                st.warning(
+                    f"Could not analyze {uploaded_file.name}: {error}"
+                )
 
-        progress_bar.progress(index / len(uploaded_files))
+            progress_bar.progress(index / len(uploaded_files))
 
-    if not results:
-        st.error("No resumes could be analyzed.")
+        if not results:
+            st.error("No resumes could be analyzed.")
+            st.stop()
+
+        # SAVE RESULTS
+        st.session_state.results = results
+
+        st.session_state.ranking_df = rank_resumes(results)
+
+        st.session_state.required_skills = required_skills
+
+    # LOAD SAVED RESULTS
+    if st.session_state.results is not None:
+
+        results = st.session_state.results
+
+        ranking_df = st.session_state.ranking_df
+
+        required_skills = st.session_state.required_skills
+
+    else:
+
+        st.info("Upload resumes and click Analyze Resumes.")
+
         st.stop()
 
-    st.session_state.results = results
-
-    st.session_state.ranking_df = rank_resumes(results)
-
-    st.session_state.required_skills = required_skills
-
-
-# LOAD SAVED RESULTS
-results = st.session_state.results
-ranking_df = st.session_state.ranking_df
-required_skills = st.session_state.required_skills
-
-if not results:
-    st.info("Upload resumes and click Analyze Resumes.")
-    st.stop()
-
-best_result = max(
-    results,
-    key=lambda item: item.overall_score
-)
-
-st.subheader("Top Resume Snapshot")
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    render_score_card(
-        "ATS Score",
-        best_result.ats_score
+    best_result = max(
+        results,
+        key=lambda item: item.overall_score
     )
 
-with col2:
-    render_score_card(
-        "Job Match",
-        best_result.similarity_score
+    st.subheader("Top Resume Snapshot")
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        render_score_card(
+            "ATS Score",
+            best_result.ats_score
+        )
+
+    with col2:
+        render_score_card(
+            "Job Match",
+            best_result.similarity_score
+        )
+
+    with col3:
+        render_score_card(
+            "Overall Score",
+            best_result.overall_score
+        )
+
+    st.subheader("Resume Ranking")
+
+    st.dataframe(
+        ranking_df,
+        use_container_width=True,
+        hide_index=True
     )
 
-with col3:
-    render_score_card(
-        "Overall Score",
-        best_result.overall_score
+    st.subheader("Detailed Resume Analysis")
+
+    selected_resume = st.selectbox(
+        "Choose resume",
+        [result.filename for result in results]
     )
 
-st.subheader("Resume Ranking")
-
-st.dataframe(
-    ranking_df,
-    use_container_width=True,
-    hide_index=True
-)
-
-st.subheader("Detailed Resume Analysis")
-
-selected_resume = st.selectbox(
-    "Choose resume",
-    [result.filename for result in results]
-)
-
-selected_result = next(
-    result for result in results
-    if result.filename == selected_resume
-)
-
-detail_col_1, detail_col_2 = st.columns([1.5, 1])
-
-with detail_col_1:
-
-    st.markdown("### Extracted Skills")
-
-    st.success(
-        ", ".join(selected_result.matched_skills)
-        or "No matching skills found."
+    selected_result = next(
+        result for result in results
+        if result.filename == selected_resume
     )
 
-    st.markdown("### Missing Skills")
+    detail_col_1, detail_col_2 = st.columns([1.5, 1])
 
-    st.warning(
-        ", ".join(selected_result.missing_skills)
-        or "No missing skills."
+    with detail_col_1:
+
+        st.markdown("### Extracted Skills")
+
+        st.success(
+            ", ".join(selected_result.matched_skills)
+            or "No matching skills found."
+        )
+
+        st.markdown("### Missing Skills")
+
+        st.warning(
+            ", ".join(selected_result.missing_skills)
+            or "No missing skills."
+        )
+
+        st.markdown("### Resume Summary")
+
+        st.write(selected_result.summary)
+
+        st.markdown("### Recommendation")
+
+        st.info(selected_result.recommendation)
+
+    with detail_col_2:
+
+        plot_skill_match(
+            selected_result.matched_skills,
+            selected_result.missing_skills
+        )
+
+        plot_skill_distribution(
+            selected_result.matched_skills,
+            selected_result.missing_skills
+        )
+
+    st.subheader("Comparison Chart")
+
+    chart_data = ranking_df[
+        ["Resume", "ATS Score", "Overall Score"]
+    ].set_index("Resume")
+
+    st.bar_chart(chart_data)
+
+    csv_data = ranking_df.to_csv(
+        index=False
+    ).encode("utf-8")
+
+    st.download_button(
+        "Download Ranking CSV",
+        data=csv_data,
+        file_name="resume_ranking.csv",
+        mime="text/csv",
     )
-
-    st.markdown("### Resume Summary")
-
-    st.write(selected_result.summary)
-
-    st.markdown("### Recommendation")
-
-    st.info(selected_result.recommendation)
-
-with detail_col_2:
-
-    plot_skill_match(
-        selected_result.matched_skills,
-        selected_result.missing_skills
-    )
-
-    plot_skill_distribution(
-        selected_result.matched_skills,
-        selected_result.missing_skills
-    )
-
-st.subheader("Comparison Chart")
-
-chart_data = ranking_df[
-    ["Resume", "ATS Score", "Overall Score"]
-].set_index("Resume")
-
-st.bar_chart(chart_data)
-
-csv_data = ranking_df.to_csv(
-    index=False
-).encode("utf-8")
-
-st.download_button(
-    "Download Ranking CSV",
-    data=csv_data,
-    file_name="resume_ranking.csv",
-    mime="text/csv",
-)
 
 
 if __name__ == "__main__":
     main()
-
-  
