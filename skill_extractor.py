@@ -1,4 +1,3 @@
-
 """Skill extraction utilities."""
 
 from __future__ import annotations
@@ -27,6 +26,7 @@ DEFAULT_SKILLS = [
     "Node.js",
     "Django",
     "Flask",
+    "Spring Boot",
 
     # Database
     "SQL",
@@ -42,6 +42,54 @@ DEFAULT_SKILLS = [
     "Power BI",
     "Tableau",
     "Excel",
+    "TensorFlow",
+    "PyTorch",
+
+    # DevOps / Cloud
+    "Linux",
+    "Docker",
+    "Kubernetes",
+    "AWS",
+    "Azure",
+    "CI/CD",
+    "Jenkins",
+    "Terraform",
+
+    # Mobile
+    "Kotlin",
+    "Firebase",
+    "Swift",
+    "Xcode",
+    "Android Studio",
+
+    # UI/UX
+    "Figma",
+    "UI/UX",
+    "Wireframing",
+    "Prototyping",
+
+    # Testing
+    "Selenium",
+    "Automation Testing",
+    "Manual Testing",
+
+    # Networking / Security
+    "Networking",
+    "Cyber Security",
+    "Ethical Hacking",
+    "Cisco",
+    "Routing",
+    "Switching",
+
+    # Blockchain / Game
+    "Solidity",
+    "Ethereum",
+    "Blockchain",
+    "Web3",
+    "Unity",
+    "C#",
+    "Game Development",
+    "Blender",
 
     # Tools
     "Git",
@@ -51,25 +99,61 @@ DEFAULT_SKILLS = [
 
 ROLE_SKILLS = {
 
+    # FRONTEND
     "frontend developer": [
         "HTML",
         "CSS",
         "JavaScript",
         "React",
+        "Angular",
+        "Vue",
         "Bootstrap",
+        "Tailwind CSS",
         "Git",
         "GitHub",
     ],
 
+    # BACKEND
     "backend developer": [
         "Python",
         "Java",
         "Node.js",
-        "SQL",
         "Django",
         "Flask",
+        "Spring Boot",
+        "SQL",
+        "MySQL",
+        "PostgreSQL",
+        "MongoDB",
+        "Git",
+        "GitHub",
     ],
 
+    # FULL STACK
+    "full stack developer": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "MongoDB",
+        "SQL",
+        "Git",
+        "GitHub",
+    ],
+
+    # DATA ANALYST
+    "data analyst": [
+        "Python",
+        "SQL",
+        "Excel",
+        "Power BI",
+        "Tableau",
+        "Data Analysis",
+        "Git",
+    ],
+
+    # DATA SCIENTIST
     "data scientist": [
         "Python",
         "Machine Learning",
@@ -77,23 +161,178 @@ ROLE_SKILLS = {
         "NLP",
         "SQL",
         "Power BI",
-        "Statistics",
         "Tableau",
         "Excel",
+        "TensorFlow",
+        "PyTorch",
+        "Git",
     ],
 
-    "data analyst": [
+    # MACHINE LEARNING
+    "machine learning engineer": [
         "Python",
+        "Machine Learning",
+        "Deep Learning",
+        "TensorFlow",
+        "PyTorch",
         "SQL",
-        "Power BI",
-        "Tableau",
-        "Excel",
+        "Git",
+    ],
+
+    # AI ENGINEER
+    "ai engineer": [
+        "Python",
+        "Machine Learning",
+        "Deep Learning",
+        "NLP",
+        "TensorFlow",
+        "PyTorch",
+        "Git",
+    ],
+
+    # DEVOPS
+    "devops engineer": [
+        "Linux",
+        "Docker",
+        "Kubernetes",
+        "AWS",
+        "CI/CD",
+        "Git",
+        "GitHub",
+        "Jenkins",
+        "Terraform",
+    ],
+
+    # CLOUD ENGINEER
+    "cloud engineer": [
+        "AWS",
+        "Azure",
+        "Docker",
+        "Kubernetes",
+        "Linux",
+        "Terraform",
+    ],
+
+    # CYBER SECURITY
+    "cyber security": [
+        "Linux",
+        "Python",
+        "Networking",
+        "Cyber Security",
+        "Ethical Hacking",
+    ],
+
+    # JAVA
+    "java developer": [
+        "Java",
+        "Spring Boot",
+        "SQL",
+        "Git",
+        "GitHub",
+    ],
+
+    # PYTHON
+    "python developer": [
+        "Python",
+        "Django",
+        "Flask",
+        "SQL",
+        "Git",
+        "GitHub",
+    ],
+
+    # WEB DEVELOPER
+    "web developer": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "React",
+        "Node.js",
+        "Git",
+    ],
+
+    # SOFTWARE ENGINEER
+    "software engineer": [
+        "Python",
+        "Java",
+        "SQL",
+        "Git",
+        "GitHub",
+    ],
+
+    # ANDROID
+    "android developer": [
+        "Java",
+        "Kotlin",
+        "Android Studio",
+        "Firebase",
+        "Git",
+    ],
+
+    # IOS
+    "ios developer": [
+        "Swift",
+        "Xcode",
+        "Firebase",
+        "Git",
+    ],
+
+    # UI UX
+    "ui ux designer": [
+        "Figma",
+        "UI/UX",
+        "Wireframing",
+        "Prototyping",
+    ],
+
+    # QA TESTER
+    "qa engineer": [
+        "Manual Testing",
+        "Automation Testing",
+        "Selenium",
+        "Java",
+        "SQL",
+    ],
+
+    # DATABASE
+    "database administrator": [
+        "SQL",
+        "MySQL",
+        "PostgreSQL",
+        "MongoDB",
+    ],
+
+    # NETWORK ENGINEER
+    "network engineer": [
+        "Networking",
+        "Linux",
+        "Cisco",
+        "Routing",
+        "Switching",
+    ],
+
+    # BLOCKCHAIN
+    "blockchain developer": [
+        "Solidity",
+        "Ethereum",
+        "Blockchain",
+        "Web3",
+        "JavaScript",
+    ],
+
+    # GAME DEV
+    "game developer": [
+        "Unity",
+        "C#",
+        "Game Development",
+        "Blender",
     ],
 }
 
 
 SKILL_ALIASES = {
 
+    # Frontend
     "HTML": [r"html"],
     "CSS": [r"css"],
     "JavaScript": [r"javascript", r"js"],
@@ -103,11 +342,15 @@ SKILL_ALIASES = {
     "Bootstrap": [r"bootstrap"],
     "Tailwind CSS": [r"tailwind"],
 
+    # Backend
     "Python": [r"python"],
     "Java": [r"java"],
-
     "Node.js": [r"node", r"nodejs", r"node\.js"],
+    "Django": [r"django"],
+    "Flask": [r"flask"],
+    "Spring Boot": [r"spring boot"],
 
+    # Database
     "SQL": [
         r"sql",
         r"mysql",
@@ -121,10 +364,19 @@ SKILL_ALIASES = {
     "MongoDB": [r"mongodb"],
     "PostgreSQL": [r"postgresql"],
 
+    # AI/Data
     "Power BI": [r"power\s*bi", r"powerbi"],
     "Tableau": [r"tableau"],
 
-    "Machine Learning": [r"machine\s+learning", r"\bml\b"],
+    "Machine Learning": [
+        r"machine\s+learning",
+        r"\bml\b"
+    ],
+
+    "Deep Learning": [
+        r"deep\s+learning",
+        r"neural\s+network"
+    ],
 
     "NLP": [
         r"\bnlp\b",
@@ -141,16 +393,58 @@ SKILL_ALIASES = {
         r"analytics"
     ],
 
-    "Deep Learning": [
-        r"deep\s+learning",
-        r"neural\s+network"
-    ],
+    "TensorFlow": [r"tensorflow"],
+    "PyTorch": [r"pytorch"],
 
+    # DevOps / Cloud
+    "Linux": [r"linux"],
+    "Docker": [r"docker"],
+    "Kubernetes": [r"kubernetes", r"k8s"],
+    "AWS": [r"aws", r"amazon web services"],
+    "Azure": [r"azure"],
+    "CI/CD": [r"ci/cd", r"ci cd"],
+    "Jenkins": [r"jenkins"],
+    "Terraform": [r"terraform"],
+
+    # Mobile
+    "Kotlin": [r"kotlin"],
+    "Firebase": [r"firebase"],
+    "Swift": [r"swift"],
+    "Xcode": [r"xcode"],
+    "Android Studio": [r"android studio"],
+
+    # UI/UX
+    "Figma": [r"figma"],
+    "UI/UX": [r"ui/ux", r"ui ux"],
+    "Wireframing": [r"wireframing"],
+    "Prototyping": [r"prototyping"],
+
+    # Testing
+    "Selenium": [r"selenium"],
+    "Automation Testing": [r"automation testing"],
+    "Manual Testing": [r"manual testing"],
+
+    # Networking / Security
+    "Networking": [r"networking"],
+    "Cyber Security": [r"cyber security"],
+    "Ethical Hacking": [r"ethical hacking"],
+    "Cisco": [r"cisco"],
+    "Routing": [r"routing"],
+    "Switching": [r"switching"],
+
+    # Blockchain / Game
+    "Solidity": [r"solidity"],
+    "Ethereum": [r"ethereum"],
+    "Blockchain": [r"blockchain"],
+    "Web3": [r"web3"],
+    "Unity": [r"unity"],
+    "C#": [r"c#"],
+    "Game Development": [r"game development"],
+    "Blender": [r"blender"],
+
+    # Tools
     "Git": [r"\bgit\b"],
     "GitHub": [r"github"],
-
-    "Django": [r"django"],
-    "Flask": [r"flask"],
 }
 
 
@@ -165,6 +459,7 @@ except OSError:
 def normalize_text(text: str) -> str:
 
     text = text or ""
+
     return re.sub(r"\s+", " ", text).strip()
 
 
@@ -198,7 +493,9 @@ def extract_skills(
     return sorted(set(found_skills), key=str.lower)
 
 
-def extract_skills_from_job_description(job_description: str) -> list[str]:
+def extract_skills_from_job_description(
+    job_description: str
+) -> list[str]:
 
     jd_lower = job_description.lower()
 
@@ -209,7 +506,6 @@ def extract_skills_from_job_description(job_description: str) -> list[str]:
 
         role_words = role.split()
 
-        # Match all words from role
         if all(word in jd_lower for word in role_words):
             detected_skills.extend(skills)
 
@@ -225,6 +521,7 @@ def extract_skills_from_job_description(job_description: str) -> list[str]:
     detected_skills = list(set(detected_skills))
 
     return detected_skills
+
 
 def get_missing_skills(
     found_skills: Iterable[str],
