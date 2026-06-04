@@ -30,18 +30,48 @@ def calculate_ats_score(matched_skills: list[str], required_skills: list[str]) -
     return round((len(matched_skills) / len(required_skills)) * 100, 2)
 
 
-def calculate_similarity_score(resume_text: str, job_description: str) -> float:
+def calculate_similarity_score(
+    resume_text: str,
+    job_description: str,
+    matched_skills: list[str],
+    required_skills: list[str]
+) -> float:
 
     if not resume_text.strip() or not job_description.strip():
         return 0.0
 
-    vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2))
+    # TEXT SIMILARITY
+    vectorizer = TfidfVectorizer(
+        stop_words="english",
+        ngram_range=(1, 2)
+    )
 
-    matrix = vectorizer.fit_transform([resume_text, job_description])
+    matrix = vectorizer.fit_transform(
+        [resume_text, job_description]
+    )
 
-    score = cosine_similarity(matrix[0:1], matrix[1:2])[0][0]
+    text_score = cosine_similarity(
+        matrix[0:1],
+        matrix[1:2]
+    )[0][0] * 100
 
-    return round(float(score) * 100, 2)
+    # SKILL MATCH SCORE
+    if required_skills:
+
+        skill_score = (
+            len(matched_skills) / len(required_skills)
+        ) * 100
+
+    else:
+        skill_score = 0
+
+    # FINAL HYBRID SCORE
+    final_score = (
+        (0.30 * text_score) +
+        (0.70 * skill_score)
+    )
+
+    return round(final_score, 2)
 
 def calculate_overall_score(ats_score: float, similarity_score: float) -> float:
     """Combine skill coverage and job-description similarity."""
