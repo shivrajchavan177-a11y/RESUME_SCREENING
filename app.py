@@ -327,105 +327,108 @@ best_result = max(
     results,
     key=lambda item: item.overall_score
 )
-    st.subheader("Top Resume Snapshot")
 
-    col1, col2, col3 = st.columns(3)
+st.subheader("Top Resume Snapshot")
 
-    with col1:
-        render_score_card(
-            "ATS Score",
-            best_result.ats_score
-        )
+col1, col2, col3 = st.columns(3)
 
-    with col2:
-        render_score_card(
-            "Job Match",
-            best_result.similarity_score
-        )
-
-    with col3:
-        render_score_card(
-            "Overall Score",
-            best_result.overall_score
-        )
-
-    st.subheader("Resume Ranking")
-
-    st.dataframe(
-        ranking_df,
-        use_container_width=True,
-        hide_index=True
+with col1:
+    render_score_card(
+        "ATS Score",
+        best_result.ats_score
     )
 
-    st.subheader("Detailed Resume Analysis")
-
-    selected_resume = st.selectbox(
-        "Choose resume",
-        [result.filename for result in results]
+with col2:
+    render_score_card(
+        "Job Match",
+        best_result.similarity_score
     )
 
-    selected_result = next(
-        result for result in results
-        if result.filename == selected_resume
+with col3:
+    render_score_card(
+        "Overall Score",
+        best_result.overall_score
     )
 
-    detail_col_1, detail_col_2 = st.columns([1.5, 1])
+st.subheader("Resume Ranking")
 
-    with detail_col_1:
+st.dataframe(
+    ranking_df,
+    use_container_width=True,
+    hide_index=True
+)
 
-        st.markdown("### Extracted Skills")
+st.subheader("Detailed Resume Analysis")
 
-        st.success(
-            ", ".join(selected_result.matched_skills)
-            or "No matching skills found."
-        )
+selected_resume = st.selectbox(
+    "Choose resume",
+    [result.filename for result in results]
+)
 
-        st.markdown("### Missing Skills")
+selected_result = next(
+    result for result in results
+    if result.filename == selected_resume
+)
 
-        st.warning(
-            ", ".join(selected_result.missing_skills)
-            or "No missing skills."
-        )
+detail_col_1, detail_col_2 = st.columns([1.5, 1])
 
-        st.markdown("### Resume Summary")
+with detail_col_1:
 
-        st.write(selected_result.summary)
+    st.markdown("### Extracted Skills")
 
-        st.markdown("### Recommendation")
-
-        st.info(selected_result.recommendation)
-
-    with detail_col_2:
-
-        plot_skill_match(
-            selected_result.matched_skills,
-            selected_result.missing_skills
-        )
-
-        plot_skill_distribution(
-            selected_result.matched_skills,
-            selected_result.missing_skills
-        )
-
-    st.subheader("Comparison Chart")
-
-    chart_data = ranking_df[
-        ["Resume", "ATS Score", "Overall Score"]
-    ].set_index("Resume")
-
-    st.bar_chart(chart_data)
-
-    csv_data = ranking_df.to_csv(
-        index=False
-    ).encode("utf-8")
-
-    st.download_button(
-        "Download Ranking CSV",
-        data=csv_data,
-        file_name="resume_ranking.csv",
-        mime="text/csv",
+    st.success(
+        ", ".join(selected_result.matched_skills)
+        or "No matching skills found."
     )
+
+    st.markdown("### Missing Skills")
+
+    st.warning(
+        ", ".join(selected_result.missing_skills)
+        or "No missing skills."
+    )
+
+    st.markdown("### Resume Summary")
+
+    st.write(selected_result.summary)
+
+    st.markdown("### Recommendation")
+
+    st.info(selected_result.recommendation)
+
+with detail_col_2:
+
+    plot_skill_match(
+        selected_result.matched_skills,
+        selected_result.missing_skills
+    )
+
+    plot_skill_distribution(
+        selected_result.matched_skills,
+        selected_result.missing_skills
+    )
+
+st.subheader("Comparison Chart")
+
+chart_data = ranking_df[
+    ["Resume", "ATS Score", "Overall Score"]
+].set_index("Resume")
+
+st.bar_chart(chart_data)
+
+csv_data = ranking_df.to_csv(
+    index=False
+).encode("utf-8")
+
+st.download_button(
+    "Download Ranking CSV",
+    data=csv_data,
+    file_name="resume_ranking.csv",
+    mime="text/csv",
+)
 
 
 if __name__ == "__main__":
     main()
+
+  
