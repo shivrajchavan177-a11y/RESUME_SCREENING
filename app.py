@@ -1,4 +1,3 @@
-
 """Streamlit app for the offline AI-powered Resume Screening Agent."""
 
 from __future__ import annotations
@@ -15,6 +14,7 @@ from scorer import (
     calculate_similarity_score,
     rank_resumes,
 )
+
 from skill_extractor import (
     DEFAULT_SKILLS,
     create_resume_summary,
@@ -33,36 +33,43 @@ st.set_page_config(
 
 CUSTOM_CSS = """
 <style>
-    .main {
-        background: #f7f9fc;
-    }
-    .hero {
-        padding: 1.3rem 1.5rem;
-        border-radius: 8px;
-        background: linear-gradient(135deg, #102a43, #1d4ed8);
-        color: white;
-        margin-bottom: 1rem;
-    }
-    .hero h1 {
-        margin: 0;
-        font-size: 2rem;
-    }
-    .hero p {
-        margin: .35rem 0 0;
-        color: #dbeafe;
-    }
-    .score-card {
-        padding: 1rem;
-        border-radius: 8px;
-        background: white;
-        border: 1px solid #e5e7eb;
-        box-shadow: 0 1px 6px rgba(15, 23, 42, 0.08);
-    }
+
+.main {
+    background: #f7f9fc;
+}
+
+.hero {
+    padding: 1.3rem 1.5rem;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #102a43, #1d4ed8);
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.hero h1 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.hero p {
+    margin: .35rem 0 0;
+    color: #dbeafe;
+}
+
+.score-card {
+    padding: 1rem;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 6px rgba(15, 23, 42, 0.08);
+}
+
 </style>
 """
 
 
 def render_score_card(title: str, value: float, suffix: str = "%") -> None:
+
     st.markdown(
         f"""
         <div class="score-card">
@@ -74,23 +81,44 @@ def render_score_card(title: str, value: float, suffix: str = "%") -> None:
     )
 
 
-def plot_skill_match(matched_skills: list[str], missing_skills: list[str]) -> None:
+def plot_skill_match(
+    matched_skills: list[str],
+    missing_skills: list[str]
+) -> None:
+
     labels = ["Matched Skills", "Missing Skills"]
-    values = [len(matched_skills), len(missing_skills)]
+
+    values = [
+        len(matched_skills),
+        len(missing_skills)
+    ]
 
     fig, ax = plt.subplots(figsize=(5, 3))
-    ax.bar(labels, values, color=["#16a34a", "#dc2626"])
+
+    ax.bar(
+        labels,
+        values,
+        color=["#16a34a", "#dc2626"]
+    )
+
     ax.set_ylabel("Count")
     ax.set_title("Skill Match Overview")
-    ax.set_ylim(0, max(values + [1]) + 1)
+
     st.pyplot(fig)
 
 
-def plot_skill_distribution(matched_skills: list[str], missing_skills: list[str]) -> None:
-    values = [len(matched_skills), len(missing_skills)]
+def plot_skill_distribution(
+    matched_skills: list[str],
+    missing_skills: list[str]
+) -> None:
+
+    values = [
+        len(matched_skills),
+        len(missing_skills)
+    ]
 
     if sum(values) == 0:
-        st.info("No required skills were found to visualize.")
+        st.info("No skills found.")
         return
 
     fig, ax = plt.subplots(figsize=(4, 4))
@@ -104,6 +132,7 @@ def plot_skill_distribution(matched_skills: list[str], missing_skills: list[str]
     )
 
     ax.set_title("Skill Match Percentage")
+
     st.pyplot(fig)
 
 
@@ -132,7 +161,9 @@ def analyze_resume(
 
     similarity_score = calculate_similarity_score(
         parsed_resume.text,
-        job_description
+        job_description,
+        matched_skills,
+        required_skills
     )
 
     overall_score = calculate_overall_score(
@@ -140,7 +171,9 @@ def analyze_resume(
         similarity_score
     )
 
-    summary = create_resume_summary(parsed_resume.text)
+    summary = create_resume_summary(
+        parsed_resume.text
+    )
 
     recommendation = build_recommendation(
         ats_score,
@@ -162,13 +195,19 @@ def analyze_resume(
 
 def main() -> None:
 
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    st.markdown(
+        CUSTOM_CSS,
+        unsafe_allow_html=True
+    )
 
     st.markdown(
         """
         <div class="hero">
             <h1>AI Resume Screening Agent</h1>
-            <p>Offline resume parsing, ATS scoring, job matching and ranking.</p>
+            <p>
+            Offline resume parsing, ATS scoring,
+            job matching and ranking.
+            </p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -187,7 +226,7 @@ def main() -> None:
         job_description = st.text_area(
             "Paste job description",
             height=120,
-            placeholder="Example: Frontend Developer with React, HTML, CSS, JavaScript, GitHub",
+            placeholder="Example: Data Analyst with Python, SQL, Power BI"
         )
 
         use_job_skills = st.checkbox(
@@ -218,10 +257,13 @@ def main() -> None:
         st.stop()
 
     st.subheader("Required Skills")
+
     st.success(", ".join(required_skills))
 
     if not analyze_button:
-        st.info("Upload resumes and click Analyze Resumes.")
+        st.info(
+            "Upload resumes and click Analyze Resumes."
+        )
         return
 
     if not uploaded_files:
@@ -239,6 +281,7 @@ def main() -> None:
     for index, uploaded_file in enumerate(uploaded_files, start=1):
 
         try:
+
             result = analyze_resume(
                 uploaded_file,
                 job_description,
@@ -248,7 +291,10 @@ def main() -> None:
             results.append(result)
 
         except Exception as error:
-            st.warning(f"Could not analyze {uploaded_file.name}: {error}")
+
+            st.warning(
+                f"Could not analyze {uploaded_file.name}: {error}"
+            )
 
         progress_bar.progress(index / len(uploaded_files))
 
@@ -268,13 +314,22 @@ def main() -> None:
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        render_score_card("ATS Score", best_result.ats_score)
+        render_score_card(
+            "ATS Score",
+            best_result.ats_score
+        )
 
     with col2:
-        render_score_card("Job Match", best_result.similarity_score)
+        render_score_card(
+            "Job Match",
+            best_result.similarity_score
+        )
 
     with col3:
-        render_score_card("Overall Score", best_result.overall_score)
+        render_score_card(
+            "Overall Score",
+            best_result.overall_score
+        )
 
     st.subheader("Resume Ranking")
 
@@ -301,24 +356,29 @@ def main() -> None:
     with detail_col_1:
 
         st.markdown("### Extracted Skills")
+
         st.success(
             ", ".join(selected_result.matched_skills)
             or "No matching skills found."
         )
 
         st.markdown("### Missing Skills")
+
         st.warning(
             ", ".join(selected_result.missing_skills)
             or "No missing skills."
         )
 
         st.markdown("### Resume Summary")
+
         st.write(selected_result.summary)
 
         st.markdown("### Recommendation")
+
         st.info(selected_result.recommendation)
 
     with detail_col_2:
+
         plot_skill_match(
             selected_result.matched_skills,
             selected_result.missing_skills
@@ -337,7 +397,9 @@ def main() -> None:
 
     st.bar_chart(chart_data)
 
-    csv_data = ranking_df.to_csv(index=False).encode("utf-8")
+    csv_data = ranking_df.to_csv(
+        index=False
+    ).encode("utf-8")
 
     st.download_button(
         "Download Ranking CSV",
