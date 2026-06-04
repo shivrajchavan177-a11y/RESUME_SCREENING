@@ -77,6 +77,15 @@ ROLE_SKILLS = {
         "NLP",
         "SQL",
         "Power BI",
+        "Statistics",
+        "Tableau",
+        "Excel",
+    ],
+
+    "data analyst": [
+        "Python",
+        "SQL",
+        "Power BI",
         "Tableau",
         "Excel",
     ],
