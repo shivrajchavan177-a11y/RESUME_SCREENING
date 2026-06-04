@@ -279,7 +279,7 @@ def main() -> None:
 
     if analyze_button:
 
-    results = []
+        results = []
 
     progress_bar = st.progress(0)
 
