@@ -116,16 +116,40 @@ def plot_skill_distribution(matched_skills: list[str], missing_skills: list[str]
     st.pyplot(fig)
 
 
-def analyze_resume(uploaded_file,  str, required_skills: list[str]) -> ResumeScore:
+def analyze_resume(uploaded_file, job_description: str, required_skills: list[str]) -> ResumeScore:
     """Parse and score one uploaded resume."""
+    
     parsed_resume = parse_uploaded_resume(uploaded_file)
+
     matched_skills = extract_skills(parsed_resume.text, required_skills)
-    missing_skills = get_missing_skills(matched_skills, required_skills)
-    ats_score = calculate_ats_score(matched_skills, required_skills)
-    similarity_score = calculate_similarity_score(parsed_resume.text, job_description)
-    overall_score = calculate_overall_score(ats_score, similarity_score)
+
+    missing_skills = get_missing_skills(
+        matched_skills,
+        required_skills
+    )
+
+    ats_score = calculate_ats_score(
+        matched_skills,
+        required_skills
+    )
+
+    similarity_score = calculate_similarity_score(
+        parsed_resume.text,
+        job_description
+    )
+
+    overall_score = calculate_overall_score(
+        ats_score,
+        similarity_score
+    )
+
     summary = create_resume_summary(parsed_resume.text)
-    recommendation = build_recommendation(ats_score, similarity_score, missing_skills)
+
+    recommendation = build_recommendation(
+        ats_score,
+        similarity_score,
+        missing_skills
+    )
 
     return ResumeScore(
         filename=parsed_resume.filename,
@@ -137,7 +161,6 @@ def analyze_resume(uploaded_file,  str, required_skills: list[str]) -> ResumeSco
         summary=summary,
         recommendation=recommendation,
     )
-
 
 def main() -> None:
     """Run the Streamlit app."""
