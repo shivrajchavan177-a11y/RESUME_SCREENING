@@ -30,6 +30,15 @@ st.set_page_config(
     layout="wide",
 )
 
+if "results" not in st.session_state:
+    st.session_state.results = []
+
+if "ranking_df" not in st.session_state:
+    st.session_state.ranking_df = None
+
+if "required_skills" not in st.session_state:
+    st.session_state.required_skills = []
+
 
 CUSTOM_CSS = """
 <style>
@@ -260,12 +269,6 @@ def main() -> None:
 
     st.success(", ".join(required_skills))
 
-    if not analyze_button:
-        st.info(
-            "Upload resumes and click Analyze Resumes."
-        )
-        return
-
     if not uploaded_files:
         st.error("Please upload at least one resume.")
         return
@@ -273,6 +276,8 @@ def main() -> None:
     if not job_description.strip():
         st.error("Please enter a job description.")
         return
+
+    if analyze_button:
 
     results = []
 
@@ -300,15 +305,28 @@ def main() -> None:
 
     if not results:
         st.error("No resumes could be analyzed.")
-        return
+        st.stop()
 
-    ranking_df = rank_resumes(results)
+    st.session_state.results = results
 
-    best_result = max(
-        results,
-        key=lambda item: item.overall_score
-    )
+    st.session_state.ranking_df = rank_resumes(results)
 
+    st.session_state.required_skills = required_skills
+
+
+# LOAD SAVED RESULTS
+results = st.session_state.results
+ranking_df = st.session_state.ranking_df
+required_skills = st.session_state.required_skills
+
+if not results:
+    st.info("Upload resumes and click Analyze Resumes.")
+    st.stop()
+
+best_result = max(
+    results,
+    key=lambda item: item.overall_score
+)
     st.subheader("Top Resume Snapshot")
 
     col1, col2, col3 = st.columns(3)
