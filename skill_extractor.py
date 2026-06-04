@@ -189,22 +189,33 @@ def extract_skills(
     return sorted(set(found_skills), key=str.lower)
 
 
-def extract_skills_from_job_description(
-    job_description: str
-) -> list[str]:
+def extract_skills_from_job_description(job_description: str) -> list[str]:
 
     jd_lower = job_description.lower()
 
+    detected_skills = []
+
+    # Detect role-based skills
     for role, skills in ROLE_SKILLS.items():
 
-        if role in jd_lower:
-            return skills
+        role_words = role.split()
 
-    return extract_skills(
+        # Match all words from role
+        if all(word in jd_lower for word in role_words):
+            detected_skills.extend(skills)
+
+    # Detect directly mentioned skills
+    direct_skills = extract_skills(
         job_description,
         DEFAULT_SKILLS
     )
 
+    detected_skills.extend(direct_skills)
+
+    # Remove duplicates
+    detected_skills = list(set(detected_skills))
+
+    return detected_skills
 
 def get_missing_skills(
     found_skills: Iterable[str],
