@@ -1,9 +1,9 @@
+
 """Streamlit app for the offline AI-powered Resume Screening Agent."""
 
 from __future__ import annotations
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import streamlit as st
 
 from parser import parse_uploaded_resume
@@ -58,21 +58,11 @@ CUSTOM_CSS = """
         border: 1px solid #e5e7eb;
         box-shadow: 0 1px 6px rgba(15, 23, 42, 0.08);
     }
-    .score-card h3 {
-        margin: 0 0 .35rem;
-        color: #334155;
-        font-size: .95rem;
-    }
-    .score-card strong {
-        color: #0f172a;
-        font-size: 1.8rem;
-    }
 </style>
 """
 
 
 def render_score_card(title: str, value: float, suffix: str = "%") -> None:
-    """Render a compact metric card."""
     st.markdown(
         f"""
         <div class="score-card">
@@ -85,7 +75,6 @@ def render_score_card(title: str, value: float, suffix: str = "%") -> None:
 
 
 def plot_skill_match(matched_skills: list[str], missing_skills: list[str]) -> None:
-    """Show a bar chart for matched vs missing skills."""
     labels = ["Matched Skills", "Missing Skills"]
     values = [len(matched_skills), len(missing_skills)]
 
@@ -98,13 +87,14 @@ def plot_skill_match(matched_skills: list[str], missing_skills: list[str]) -> No
 
 
 def plot_skill_distribution(matched_skills: list[str], missing_skills: list[str]) -> None:
-    """Show a pie chart for matched and missing skills."""
     values = [len(matched_skills), len(missing_skills)]
+
     if sum(values) == 0:
         st.info("No required skills were found to visualize.")
         return
 
     fig, ax = plt.subplots(figsize=(4, 4))
+
     ax.pie(
         values,
         labels=["Matched", "Missing"],
@@ -112,16 +102,23 @@ def plot_skill_distribution(matched_skills: list[str], missing_skills: list[str]
         startangle=90,
         colors=["#22c55e", "#f97316"],
     )
+
     ax.set_title("Skill Match Percentage")
     st.pyplot(fig)
 
 
-def analyze_resume(uploaded_file, job_description: str, required_skills: list[str]) -> ResumeScore:
-    """Parse and score one uploaded resume."""
-    
+def analyze_resume(
+    uploaded_file,
+    job_description: str,
+    required_skills: list[str]
+) -> ResumeScore:
+
     parsed_resume = parse_uploaded_resume(uploaded_file)
 
-    matched_skills = extract_skills(parsed_resume.text, required_skills)
+    matched_skills = extract_skills(
+        parsed_resume.text,
+        required_skills
+    )
 
     missing_skills = get_missing_skills(
         matched_skills,
@@ -162,108 +159,177 @@ def analyze_resume(uploaded_file, job_description: str, required_skills: list[st
         recommendation=recommendation,
     )
 
+
 def main() -> None:
-    """Run the Streamlit app."""
+
     st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
     st.markdown(
         """
         <div class="hero">
             <h1>AI Resume Screening Agent</h1>
-            <p>Offline resume parsing, skill extraction, ATS scoring, job matching, and ranking.</p>
+            <p>Offline resume parsing, ATS scoring, job matching and ranking.</p>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
     with st.sidebar:
+
         st.header("Screening Setup")
+
         uploaded_files = st.file_uploader(
             "Upload PDF resumes",
             type=["pdf"],
             accept_multiple_files=True,
         )
+
         job_description = st.text_area(
             "Paste job description",
-            height=100,
-            placeholder="Paste the role description, responsibilities, and required skills here.",
+            height=120,
+            placeholder="Example: Frontend Developer with React, HTML, CSS, JavaScript, GitHub",
         )
-        use_job_skills = st.checkbox("Use skills detected from job description", value=True)
-        analyze_button = st.button("Analyze Resumes", type="primary", use_container_width=True)
 
-    base_required_skills = extract_skills_from_job_description(job_description) if use_job_skills else []
+        use_job_skills = st.checkbox(
+            "Use skills detected from job description",
+            value=True
+        )
+
+        analyze_button = st.button(
+            "Analyze Resumes",
+            type="primary",
+            use_container_width=True
+        )
+
+    base_required_skills = (
+        extract_skills_from_job_description(job_description)
+        if use_job_skills else []
+    )
+
     required_skills = base_required_skills or DEFAULT_SKILLS
 
     st.subheader("Required Skills")
-    st.write(", ".join(required_skills))
+    st.success(", ".join(required_skills))
 
     if not analyze_button:
-        st.info("Upload one or more PDF resumes, paste a job description, then click Analyze Resumes.")
+        st.info("Upload resumes and click Analyze Resumes.")
         return
 
     if not uploaded_files:
-        st.error("Please upload at least one PDF resume.")
+        st.error("Please upload at least one resume.")
         return
 
     if not job_description.strip():
-        st.error("Please paste a job description before analysis.")
+        st.error("Please enter a job description.")
         return
 
-    results: list[ResumeScore] = []
+    results = []
+
     progress_bar = st.progress(0)
 
     for index, uploaded_file in enumerate(uploaded_files, start=1):
+
         try:
-            results.append(analyze_resume(uploaded_file, job_description, required_skills))
+            result = analyze_resume(
+                uploaded_file,
+                job_description,
+                required_skills
+            )
+
+            results.append(result)
+
         except Exception as error:
             st.warning(f"Could not analyze {uploaded_file.name}: {error}")
+
         progress_bar.progress(index / len(uploaded_files))
 
     if not results:
-        st.error("No resumes could be analyzed. Check that the PDFs contain selectable text.")
+        st.error("No resumes could be analyzed.")
         return
 
     ranking_df = rank_resumes(results)
-    best_result = max(results, key=lambda item: item.overall_score)
+
+    best_result = max(
+        results,
+        key=lambda item: item.overall_score
+    )
 
     st.subheader("Top Resume Snapshot")
-    score_col_1, score_col_2, score_col_3 = st.columns(3)
-    with score_col_1:
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
         render_score_card("ATS Score", best_result.ats_score)
-    with score_col_2:
+
+    with col2:
         render_score_card("Job Match", best_result.similarity_score)
-    with score_col_3:
+
+    with col3:
         render_score_card("Overall Score", best_result.overall_score)
 
     st.subheader("Resume Ranking")
-    st.dataframe(ranking_df, use_container_width=True, hide_index=True)
+
+    st.dataframe(
+        ranking_df,
+        use_container_width=True,
+        hide_index=True
+    )
 
     st.subheader("Detailed Resume Analysis")
-    selected_resume = st.selectbox("Choose resume", [result.filename for result in results])
-    selected_result = next(result for result in results if result.filename == selected_resume)
+
+    selected_resume = st.selectbox(
+        "Choose resume",
+        [result.filename for result in results]
+    )
+
+    selected_result = next(
+        result for result in results
+        if result.filename == selected_resume
+    )
 
     detail_col_1, detail_col_2 = st.columns([1.5, 1])
+
     with detail_col_1:
-        st.markdown("#### Extracted Skills")
-        st.success(", ".join(selected_result.matched_skills) or "No matching skills found.")
 
-        st.markdown("#### Missing Skills")
-        st.warning(", ".join(selected_result.missing_skills) or "No missing skills.")
+        st.markdown("### Extracted Skills")
+        st.success(
+            ", ".join(selected_result.matched_skills)
+            or "No matching skills found."
+        )
 
-        st.markdown("#### Resume Summary")
+        st.markdown("### Missing Skills")
+        st.warning(
+            ", ".join(selected_result.missing_skills)
+            or "No missing skills."
+        )
+
+        st.markdown("### Resume Summary")
         st.write(selected_result.summary)
 
-        st.markdown("#### Recommendation")
+        st.markdown("### Recommendation")
         st.info(selected_result.recommendation)
 
     with detail_col_2:
-        plot_skill_match(selected_result.matched_skills, selected_result.missing_skills)
-        plot_skill_distribution(selected_result.matched_skills, selected_result.missing_skills)
+        plot_skill_match(
+            selected_result.matched_skills,
+            selected_result.missing_skills
+        )
+
+        plot_skill_distribution(
+            selected_result.matched_skills,
+            selected_result.missing_skills
+        )
 
     st.subheader("Comparison Chart")
-    chart_data = ranking_df[["Resume", "ATS Score",  "Overall Score"]].set_index("Resume")
+
+    chart_data = ranking_df[
+        ["Resume", "ATS Score", "Overall Score"]
+    ].set_index("Resume")
+
     st.bar_chart(chart_data)
 
     csv_data = ranking_df.to_csv(index=False).encode("utf-8")
+
     st.download_button(
         "Download Ranking CSV",
         data=csv_data,
