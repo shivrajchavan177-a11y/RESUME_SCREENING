@@ -150,7 +150,6 @@ ROLE_SKILLS = {
         "Power BI",
         "Tableau",
         "Data Analysis",
-        "Git",
     ],
 
     # DATA SCIENTIST
@@ -165,7 +164,6 @@ ROLE_SKILLS = {
         "Excel",
         "TensorFlow",
         "PyTorch",
-        "Git",
     ],
 
     # MACHINE LEARNING
