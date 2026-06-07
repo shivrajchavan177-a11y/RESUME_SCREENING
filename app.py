@@ -380,27 +380,23 @@ def main() -> None:
 
     with detail_col_1:
 
-        st.markdown("### Extracted Skills")
+    st.markdown("### Extracted Skills")
 
-        st.success(
-            ", ".join(selected_result.matched_skills)
-            or "No matching skills found."
-        )
+    st.success(
+        ", ".join(selected_result.matched_skills)
+        or "No matching skills found."
+    )
 
-        st.markdown("### Missing Skills")
+    st.markdown("### Missing Skills")
 
-        st.warning(
-            ", ".join(selected_result.missing_skills)
-            or "No missing skills."
-        )
+    st.warning(
+        ", ".join(selected_result.missing_skills)
+        or "No missing skills."
+    )
 
-        st.markdown("### Resume Summary")
+    st.markdown("### Recommendation")
 
-        st.write(selected_result.summary)
-
-        st.markdown("### Recommendation")
-
-        st.info(selected_result.recommendation)
+    st.info(selected_result.recommendation)
 
     with detail_col_2:
 
