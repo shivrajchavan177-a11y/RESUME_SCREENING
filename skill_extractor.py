@@ -113,6 +113,11 @@ ROLE_SKILLS = {
         "GitHub",
     ],
 
+    #SSC
+    "SSC": [
+        "SSC",
+    ],    
+        
     # BACKEND
     "backend developer": [
         "Python",
