@@ -228,7 +228,9 @@ ROLE_SKILLS = {
         "Git",
         "GitHub",
     ],
-
+#SSC
+    "SSC":[
+"SSC"],
     # PYTHON
     "python developer": [
         "Python",
